@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
 
-function Todo({todo, index, completeTodo, removeTodo}) {
+function Todo({todo, index, completeTodo, removeTodo, undoTodo}) {
     return (
         <div style={{textDecoration: todo.isCompleted ? 'line-through': ''}}>
             {todo.text}
             <div>
-                <button onClick = {() => completeTodo(index)}>Complete</button>
+                {!todo.isCompleted && <button onClick = {() => completeTodo(index)}>Complete</button>}
+                {todo.isCompleted && <button onClick = {() => undoTodo(index)}>Undo</button>}
                 <button onClick = {() => removeTodo(index)}>x</button>
             </div>
         </div>
@@ -21,12 +22,14 @@ function TodoForm ({addTodo}) {
         addTodo(value);
         setValue('');
     }
+    
     return (
         <form onSubmit = {handleSubmit}>
             <input type="text" placeholder="Add Todo..." value = {value} onChange = {e => setValue(e.target.value)}/>
         </form>
     )
 }
+
 function Todos() {
     const [todos, setTodos] = useState([
         {
@@ -53,16 +56,30 @@ function Todos() {
         newTodos[index].isCompleted = true;
         setTodos(newTodos);
     }
+
     const removeTodo = index => {
         const newTodos = [...todos];
         newTodos.splice(index, 1);
         setTodos(newTodos);
     }
 
+    const undoTodo = index => {
+        const newTodos = [...todos];
+        newTodos[index].isCompleted = false;
+        setTodos(newTodos);
+    }
+
     return (
         <div>
             {todos.map((todo, index) => (
-                <Todo key={index} index={index} todo={todo} completeTodo={completeTodo} removeTodo={removeTodo}/>
+                <Todo 
+                    key={index} 
+                    index={index} 
+                    todo={todo} 
+                    completeTodo={completeTodo} 
+                    removeTodo={removeTodo}
+                    undoTodo={undoTodo}
+                />
             ))}
             <TodoForm addTodo={addTodo}/>
         </div>
